@@ -68,7 +68,6 @@ export async function POST(req) {
         const cookie = Cookie.parse(`${COOKIE_NAME}=${jwtToken}`);
         cookie.path = '/';
         cookie.httpOnly = true;
-        cookie.maxAge = process.env.JWT_EXPIRES;
         cookie.sameSite = 'lax';
 
         if (process.env.NODE_ENV === 'production') {
