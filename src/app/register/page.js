@@ -7,6 +7,8 @@ import {
     AiOutlineEye as EyeIcon, AiOutlineEyeInvisible as EyeOffIcon
 } from 'react-icons/ai';
 
+import { IoCloseSharp } from "react-icons/io5";
+
 export default function RegisterPage() {
     const router = useRouter();
     const [email, setEmail] = useState('');
@@ -17,6 +19,7 @@ export default function RegisterPage() {
     const [error, setError] = useState('');
     const [buttonText, setButtonText] = useState('Generate');
     const [buttonDisabled, setButtonDisabled] = useState(false);
+    const [animationClass, setAnimationClass] = useState('animate__fadeIn');
 
     const generatePassword = () => {
         const length = 12;
@@ -58,7 +61,7 @@ export default function RegisterPage() {
             setError('');
 
             if (!validator.isEmail(email)) throw new Error("Invalid email address");
-            if (!validator.isStrongPassword(password)) throw new Error("Password is not strong enough, ensure it has LowerCase, UpperCase, Numbers and Symbols in it");
+            if (!validator.isStrongPassword(password)) throw new Error("Password is not strong enough.");
             if (!validator.isAscii(inviteCode)) throw new Error("Invalid invite code");
 
             const response = await axios.post('/api/auth/register', {
@@ -76,7 +79,6 @@ export default function RegisterPage() {
             router.push('/login');
         } catch (error) {
             console.log(error)
-            // on code 400
             if (error?.response?.status === 400) {
                 setError(error?.response?.data?.error || "An unknown error occurred");
                 return;
@@ -123,13 +125,12 @@ export default function RegisterPage() {
                         <div className="flex">
                             <input
                                 onChange={(e) => setPassword(e.target.value)}
-                                onInput={(e) => {
-                                    if (showPassword) setShowPassword(false);
-                                    setPassword(e.target.value);
-                                }}
+                                onInput={(e) => setPassword(e.target.value)}
+                                onBlur={(e) => setPassword(e.target.value)}
                                 type={showPassword ? "text" : "password"}
                                 placeholder="Enter your password"
                                 className="mt-1 w-full p-2 border rounded-md"
+                                autoComplete="new-password"
                                 id="password"
                                 required
                             />
@@ -166,15 +167,27 @@ export default function RegisterPage() {
                     <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold cursor-pointer px-6 py-2 rounded-md transition-colors duration-200">
                         Register
                     </button>
-                    {error && (
-                        <div className="bg-red-600 text-white w-full text-sm py-2 px-4 rounded-md mt-3">
-                            {error}
-                        </div>
-                    )}
-                    <div className="text-sm text-gray-600">
-                        Already have an account? <button type="button" className="text-blue-600 hover:text-blue-700" onClick={() => router.push('/login')}>Login</button>
-                    </div>
                 </form>
+                <div className="text-sm text-gray-600">
+                    Already have an account? <button type="button" className="text-blue-600 hover:text-blue-700" onClick={() => router.push('/login')}>Login</button>
+                </div>
+                {error && (
+                    <div className={`bg-red-600 text-white w-full text-sm py-2 px-4 rounded-md mt-3 relative animate__animated ${animationClass} animate__faster`}>
+                        {error}
+                        <button 
+                            onClick={() => {
+                                setAnimationClass('animate__fadeOut');
+                                setTimeout(() => {
+                                    setError('');
+                                    setAnimationClass('animate__fadeIn');
+                                }, 400);
+                            }} 
+                            className="absolute top-0 right-0 p-2 transition-colors duration-200 hover:bg-red-700 rounded-md"
+                        >
+                            <IoCloseSharp className="h-5 w-5" />
+                        </button>
+                    </div>
+                )}
             </div >
         </main >
     )
