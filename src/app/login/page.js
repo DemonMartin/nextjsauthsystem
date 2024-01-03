@@ -14,7 +14,7 @@ export default function Page() {
         try {
             setError('');
 
-            const response = await axios.post('/api/login', {
+            const response = await axios.post('/api/auth/login', {
                 username,
                 password
             });
@@ -26,7 +26,14 @@ export default function Page() {
 
             router.push('/dashboard');
         } catch (error) {
-            setError(error.message);
+            console.log(error)
+            // on code 400
+            if (error?.response?.status === 400) {
+                setError(error?.response?.data?.error || "An unknown error occurred");
+                return;
+            } else {
+                setError(error.message);
+            }
         }
     };
 

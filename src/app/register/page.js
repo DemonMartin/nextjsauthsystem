@@ -3,14 +3,28 @@ import { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import validator from 'validator';
+import {
+    AiOutlineEye as EyeIcon, AiOutlineEyeInvisible as EyeOffIcon
+} from 'react-icons/ai';
 
 export default function RegisterPage() {
     const router = useRouter();
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [inviteCode, setInviteCode] = useState('');
     const [error, setError] = useState('');
+
+    const generatePassword = () => {
+        const randomPassword = Math.random().toString(36).slice(-8);
+        document.getElementById('password').value = randomPassword;
+        setPassword(randomPassword);
+        setShowPassword(true);
+
+        // save to clipboard
+        navigator.clipboard.writeText(randomPassword);
+    }
 
     const handleRegister = async () => {
         try {
@@ -77,16 +91,33 @@ export default function RegisterPage() {
                             required
                         />
                     </div>
-                    <div>
-                        <label htmlFor="password" className="text-gray-600 font-semibold">Password</label>
-                        <input
-                            onChange={(e) => setPassword(e.target.value)}
-                            type="password"
-                            placeholder="Enter your password"
-                            className="mt-1 w-full p-2 border rounded-md"
-                            id="password"
-                            required
-                        />
+                    <div className="relative">
+                        <div className="flex">
+                            <input
+                                onChange={(e) => setPassword(e.target.value)}
+                                type={showPassword ? "text" : "password"}
+                                placeholder="Enter your password"
+                                className="mt-1 w-full p-2 border rounded-md"
+                                id="password"
+                                required
+                            />
+                            {/* Show/Hide Password Button */}
+                            <button
+                                type="button"
+                                className="flex items-center justify-center p-2"
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
+                                {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                            </button>
+                        </div>
+                        {/* Generate Password Button */}
+                        <button
+                            type="button"
+                            className="mt-1 w-full p-2 border rounded-md transition-colors duration-200 hover:bg-gray-200 hover:border-gray-300"
+                            onClick={() => generatePassword()}
+                        >
+                            Generate
+                        </button>
                     </div>
                     <div>
                         <label htmlFor="inviteCode" className="text-gray-600 font-semibold">Invite Code</label>
@@ -111,7 +142,7 @@ export default function RegisterPage() {
                         Already have an account? <button type="button" className="text-blue-600 hover:text-blue-700" onClick={() => router.push('/login')}>Login</button>
                     </div>
                 </form>
-            </div>
-        </main>
+            </div >
+        </main >
     )
 }
