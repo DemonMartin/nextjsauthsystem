@@ -119,9 +119,14 @@ export default function RegisterPage() {
                         />
                     </div>
                     <div className="relative">
+                        <label htmlFor="password" className="text-gray-600 font-semibold">Password</label>
                         <div className="flex">
                             <input
                                 onChange={(e) => setPassword(e.target.value)}
+                                onInput={(e) => {
+                                    if (showPassword) setShowPassword(false);
+                                    setPassword(e.target.value);
+                                }}
                                 type={showPassword ? "text" : "password"}
                                 placeholder="Enter your password"
                                 className="mt-1 w-full p-2 border rounded-md"
@@ -140,7 +145,7 @@ export default function RegisterPage() {
                         {/* Generate Password Button */}
                         <button
                             type="button"
-                            className={`mt-1 w-full p-2 border rounded-md transition-colors duration-200 hover:bg-gray-200 hover:border-gray-300 ${buttonDisabled ? 'bg-gray-300 cursor-not-allowed' : ''}`}
+                            className={`mt-1 w-full p-2 border rounded-md transition-colors duration-200 ${!buttonDisabled ? 'hover:bg-gray-200' : ''} hover:border-gray-300 ${buttonDisabled ? 'bg-gray-300 cursor-not-allowed' : ''}`}
                             onClick={() => generatePassword()}
                             disabled={buttonDisabled}
                         >
