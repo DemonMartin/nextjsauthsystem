@@ -6,6 +6,7 @@ import {
     AiOutlineEye as EyeIcon, AiOutlineEyeInvisible as EyeOffIcon
 } from 'react-icons/ai';
 import { IoCloseSharp } from "react-icons/io5";
+import ClipLoader from "react-spinners/ClipLoader";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -14,9 +15,11 @@ export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [animationClass, setAnimationClass] = useState('animate__fadeIn');
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleSignIn = async () => {
         try {
+            setIsLoading(true);
             setError('');
 
             const response = await axios.post('/api/auth/login', {
@@ -26,14 +29,15 @@ export default function LoginPage() {
 
             if (response.data.error) {
                 setError(response.data.error);
-                return;
+            } else {
+                router.push('/dashboard');
             }
-
-            router.push('/dashboard');
         } catch (error) {
             console.log(error)
             setError(error?.response?.data?.error || error.message);
         }
+
+        setIsLoading(false);
     };
 
     const handleSubmit = async (e) => {
@@ -81,7 +85,7 @@ export default function LoginPage() {
                         </div>
                     </div>
                     <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold cursor-pointer px-6 py-2 rounded-md transition-colors duration-200">
-                        Login
+                        {isLoading ? <ClipLoader color="#ffffff" size={20} /> : 'Login'}
                     </button>
                 </form>
                 <div className="text-sm text-gray-600">
@@ -89,17 +93,17 @@ export default function LoginPage() {
                 </div>
 
                 {error && (
-                    <div className={`bg-red-600 text-white w-full text-sm py-2 px-4 rounded-md mt-3 relative animate__animated ${animationClass} animate__faster`}>
-                        {error}
-                        <button
+                    <div className={`bg-red-600 text-white text-sm w-full py-2 px-4 rounded-md mt-3 relative animate__animated ${animationClass} animate__faster flex items-center`}>
+                        <span className="flex-1">{error}</span>
+                        <button 
                             onClick={() => {
                                 setAnimationClass('animate__fadeOut');
                                 setTimeout(() => {
                                     setError('');
                                     setAnimationClass('animate__fadeIn');
                                 }, 400);
-                            }}
-                            className="absolute top-0 right-0 p-2 transition-colors duration-200 hover:bg-red-700 rounded-md"
+                            }} 
+                            className="ml-2 p-2 transition-colors duration-200 hover:bg-red-700 rounded-md"
                         >
                             <IoCloseSharp className="h-5 w-5" />
                         </button>

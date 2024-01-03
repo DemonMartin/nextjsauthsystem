@@ -8,6 +8,7 @@ import {
 } from 'react-icons/ai';
 
 import { IoCloseSharp } from "react-icons/io5";
+import ClipLoader from "react-spinners/ClipLoader";
 
 export default function RegisterPage() {
     const router = useRouter();
@@ -20,6 +21,7 @@ export default function RegisterPage() {
     const [buttonText, setButtonText] = useState('Generate');
     const [buttonDisabled, setButtonDisabled] = useState(false);
     const [animationClass, setAnimationClass] = useState('animate__fadeIn');
+    const [isLoading, setIsLoading] = useState(false);
 
     const generatePassword = () => {
         const length = 12;
@@ -58,6 +60,7 @@ export default function RegisterPage() {
 
     const handleRegister = async () => {
         try {
+            setIsLoading(true);
             setError('');
 
             if (!validator.isEmail(email)) throw new Error("Invalid email address");
@@ -73,19 +76,18 @@ export default function RegisterPage() {
 
             if (response?.data?.success !== true) {
                 setError(response?.data?.error || "An unknown error occurred");
-                return;
+            } else {
+                router.push('/login');
             }
-
-            router.push('/login');
         } catch (error) {
             console.log(error)
             if (error?.response?.status === 400) {
                 setError(error?.response?.data?.error || "An unknown error occurred");
-                return;
             } else {
                 setError(error.message);
             }
         }
+        setIsLoading(false);
     };
 
     const handleSubmit = async (e) => {
@@ -165,15 +167,15 @@ export default function RegisterPage() {
                         />
                     </div>
                     <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold cursor-pointer px-6 py-2 rounded-md transition-colors duration-200">
-                        Register
+                        {isLoading ? <ClipLoader color="#ffffff" size={20} /> : 'Register'}
                     </button>
                 </form>
                 <div className="text-sm text-gray-600">
                     Already have an account? <button type="button" className="text-blue-600 hover:text-blue-700" onClick={() => router.push('/login')}>Login</button>
                 </div>
                 {error && (
-                    <div className={`bg-red-600 text-white w-full text-sm py-2 px-4 rounded-md mt-3 relative animate__animated ${animationClass} animate__faster`}>
-                        {error}
+                    <div className={`bg-red-600 text-white w-full py-2 px-4 rounded-md mt-3 relative animate__animated ${animationClass} animate__faster flex items-center`}>
+                        <span className="flex-1">{error}</span>
                         <button 
                             onClick={() => {
                                 setAnimationClass('animate__fadeOut');
@@ -182,7 +184,7 @@ export default function RegisterPage() {
                                     setAnimationClass('animate__fadeIn');
                                 }, 400);
                             }} 
-                            className="absolute top-0 right-0 p-2 transition-colors duration-200 hover:bg-red-700 rounded-md"
+                            className="ml-2 p-2 transition-colors duration-200 hover:bg-red-700 rounded-md"
                         >
                             <IoCloseSharp className="h-5 w-5" />
                         </button>

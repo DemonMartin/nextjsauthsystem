@@ -11,7 +11,7 @@ export async function GET() {
     const jwtTokenCookie = cookieStore.get(COOKIE_NAME);
     const jwtToken = jwtTokenCookie?.value;
     if (!cookieStore.has(COOKIE_NAME) || !jwtToken) {
-        return unauthenticatedResponse(1);
+        return unauthenticatedResponse();
     }
 
     await dbConnect();
@@ -20,27 +20,26 @@ export async function GET() {
         const user = jwt.verify(jwtToken, process.env.JWT_SECRET);
 
         if (!user || !user?.password || !user?.id) {
-            return unauthenticatedResponse(2);
+            return unauthenticatedResponse();
         }
 
         const dbUser = await User.findById(user.id).exec();
 
         if (!dbUser) {
-            return unauthenticatedResponse(3);
+            return unauthenticatedResponse();
         }
 
         // check whether current password hash matches saved one (incase user changes password)
         if (dbUser.password != user.password) {
-            return unauthenticatedResponse(4);
+            return unauthenticatedResponse();
         }
 
         return NextResponse.json({ authed: true });
     } catch (error) {
-        return unauthenticatedResponse(5);
+        return unauthenticatedResponse();
     }
 }
 
 function unauthenticatedResponse(t) {
-    console.log(t)
     return NextResponse.json({ authed: false }, { status: 401 });
 }
