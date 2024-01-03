@@ -14,6 +14,7 @@
     "animate.css": "^4.1.1",
     "argon2": "^0.31.2",
     "axios": "^1.6.3",
+    "isbot": "^4.2.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.3",
     "next": "14.0.4",

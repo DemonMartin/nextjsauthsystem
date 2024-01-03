@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import Ajv from "ajv";
 import addFormats from "ajv-formats"
 import validator from "validator";
+import validateFingerprint from "@/libs/validateFingerprint";
 
 const ajv = new Ajv();
 addFormats(ajv);
@@ -34,19 +35,27 @@ export async function POST(req) {
                     minLength: 4,
                     maxLength: 32,
                     pattern: "^[a-zA-Z0-9_]*$"
+                },
+                fingerprint: {
+                    type: "string"
                 }
             },
-            required: ["email", "password", "invite", "username"]
+            required: ["email", "password", "invite", "username", "fingerprint"]
         };
 
         const validate = ajv.compile(schema);
 
         // precise error
         if (!validate(requestBody)) {
-            return NextResponse.json({ error: validate.errors[0].message }, { status: 400 });
+            return NextResponse.json({ error: JSON.stringify(validate.errors) }, { status: 400 });
         }
 
-        const { email, password, invite, username } = requestBody;
+        const { email, password, invite, username, fingerprint } = requestBody;
+
+        // check if fingerprint is valid
+        if (!(await validateFingerprint(headers, fingerprint))) {
+            return NextResponse.json({ error: "Invalid fingerprint" }, { status: 400 });
+        }
 
         // check if invite is valid
         if (invite !== process.env.INVITE_CODE) {

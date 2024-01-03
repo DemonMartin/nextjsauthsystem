@@ -1,5 +1,5 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import validator from 'validator';
@@ -10,6 +10,7 @@ import {
 import { IoCloseSharp } from "react-icons/io5";
 import ClipLoader from "react-spinners/ClipLoader";
 import PasswordStrenghBar from '@/components/PasswordStrenghBar';
+import fetchFingerprint from '@/libs/fetchFingerprint';
 
 export default function RegisterPage() {
     const router = useRouter();
@@ -23,6 +24,7 @@ export default function RegisterPage() {
     const [buttonDisabled, setButtonDisabled] = useState(false);
     const [animationClass, setAnimationClass] = useState('animate__fadeIn');
     const [isLoading, setIsLoading] = useState(false);
+    const [fingerprint, setFingerprint] = useState('');
 
     const generatePassword = () => {
         const length = 12;
@@ -72,7 +74,8 @@ export default function RegisterPage() {
                 email,
                 username,
                 password,
-                invite: inviteCode
+                invite: inviteCode,
+                fingerprint
             });
 
             if (response?.data?.success !== true) {
@@ -95,6 +98,21 @@ export default function RegisterPage() {
         e.preventDefault();
         await handleRegister();
     };
+
+    useEffect(() => {
+        // generate fingerprint
+        const generateFingerprint = async () => {
+            const fingerprint = await fetchFingerprint();
+            if (fingerprint?.error) {
+                setError(fingerprint.error);
+            }
+
+            // save fingerprint
+            setFingerprint(fingerprint);
+        };
+
+        generateFingerprint();
+    }, [])
 
     return (
         <main className='bg-wave-pattern bg-no-repeat bg-center bg-cover grid place-items-center h-screen'>
@@ -159,7 +177,7 @@ export default function RegisterPage() {
                         >
                             {buttonText}
                         </button>
-                        <PasswordStrenghBar pw={password}/>
+                        <PasswordStrenghBar pw={password} />
                     </div>
                     <div>
                         <label htmlFor="inviteCode" className="text-gray-600 font-semibold">Invite Code</label>
@@ -182,14 +200,14 @@ export default function RegisterPage() {
                 {error && (
                     <div className={`bg-red-600 text-white w-full py-2 px-4 rounded-md mt-3 relative animate__animated ${animationClass} animate__faster flex items-center`}>
                         <span className="flex-1">{error}</span>
-                        <button 
+                        <button
                             onClick={() => {
                                 setAnimationClass('animate__fadeOut');
                                 setTimeout(() => {
                                     setError('');
                                     setAnimationClass('animate__fadeIn');
                                 }, 400);
-                            }} 
+                            }}
                             className="ml-2 p-2 transition-colors duration-200 hover:bg-red-700 rounded-md"
                         >
                             <IoCloseSharp className="h-5 w-5" />
