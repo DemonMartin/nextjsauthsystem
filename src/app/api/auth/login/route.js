@@ -6,6 +6,7 @@ import Ajv from "ajv";
 import addFormats from "ajv-formats"
 import jwt from "jsonwebtoken";
 import { COOKIE_NAME } from "@/constant";
+import { Cookie } from "tough-cookie"
 
 const ajv = new Ajv();
 addFormats(ajv);
@@ -64,11 +65,21 @@ export async function POST(req) {
 
 
         // Set JWT as cookie
+        const cookie = Cookie.parse(`${COOKIE_NAME}=${jwtToken}`);
+        cookie.path = '/';
+        cookie.httpOnly = true;
+        cookie.maxAge = process.env.JWT_EXPIRES;
+        cookie.sameSite = 'lax';
+
+        if (process.env.NODE_ENV === 'production') {
+            cookie.secure = true;
+        }
+
         return new NextResponse({
             body: { success: true },
         }, {
             headers: {
-                'Set-Cookie': `${COOKIE_NAME}=${jwtToken}; Path=/; HttpOnly; Max-Age=${process.env.JWT_EXPIRES}; SameSite=Lax;${process.env.NODE_ENV === 'production' ? ' Secure' : ''}`
+                'Set-Cookie': cookie.toString()
             },
             status: 200
         })
