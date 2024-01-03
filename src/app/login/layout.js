@@ -1,10 +1,11 @@
 "use client";
 import { useState, useEffect } from 'react';
 import isUserAuthed from '@/libs/isUserAuthed';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Loading from '@/components/Loading';
 
 export default function Layout({ children }) {
+    const router = useRouter(); 
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -12,7 +13,7 @@ export default function Layout({ children }) {
             try {
                 const user = await isUserAuthed();
                 if (user.authed) {
-                    redirect('/dashboard');
+                    router.push('/dashboard');
                 } else {
                     setLoading(false);
                 }
@@ -23,7 +24,7 @@ export default function Layout({ children }) {
         };
 
         if (loading) checkAuthStatus();
-    }, [loading]);
+    }, [loading, router]);
 
     return (
         <main className="grid place-items-center h-screen">

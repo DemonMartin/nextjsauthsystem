@@ -5,11 +5,13 @@ import { NextResponse } from "next/server";
 import Ajv from "ajv";
 import addFormats from "ajv-formats"
 import jwt from "jsonwebtoken";
+import { COOKIE_NAME } from "@/constant";
 
 const ajv = new Ajv();
 addFormats(ajv);
 
 async function hasUser(obj) {
+    await dbConnect();
     const user = await User.findOne({ ...obj });
     return user;
 }
@@ -55,12 +57,21 @@ export async function POST(req) {
             return NextResponse.json({ error: "Invalid password" }, { status: 401 });
         }
 
-        // Login successful
 
         // Generate JWT
-        const jwtToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES });
+        const jwtToken = jwt.sign({ id: user._id, password: user.password }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES });
 
-        return NextResponse.json({  });
+
+
+        // Set JWT as cookie
+        return new NextResponse({
+            body: { success: true },
+        }, {
+            headers: {
+                'Set-Cookie': `${COOKIE_NAME}=${jwtToken}; Path=/; HttpOnly; Max-Age=${process.env.JWT_EXPIRES}; SameSite=Lax;${process.env.NODE_ENV === 'production' ? ' Secure' : ''}`
+            },
+            status: 200
+        })
     } catch (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
