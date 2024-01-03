@@ -58,11 +58,8 @@ export async function POST(req) {
             return NextResponse.json({ error: "Invalid password" }, { status: 401 });
         }
 
-
         // Generate JWT
         const jwtToken = jwt.sign({ id: user._id, password: user.password }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES });
-
-
 
         // Set JWT as cookie
         const cookie = Cookie.parse(`${COOKIE_NAME}=${jwtToken}`);

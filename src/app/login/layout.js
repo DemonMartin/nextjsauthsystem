@@ -27,7 +27,7 @@ export default function Layout({ children }) {
     }, [loading, router]);
 
     return (
-        <main className="grid place-items-center h-screen">
+        <main className="bg-wave-pattern bg-no-repeat bg-center bg-cover grid place-items-center h-screen">
             {loading && (<Loading />)}
             {!loading && children}
         </main>

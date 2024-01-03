@@ -96,7 +96,7 @@ export default function RegisterPage() {
     };
 
     return (
-        <main className='grid place-items-center h-screen'>
+        <main className='bg-wave-pattern bg-no-repeat bg-center bg-cover grid place-items-center h-screen'>
             <div className="shadow-xl p-6 rounded-lg border-t-4 border-blue-500 bg-white max-w-sm w-full animate__animated animate__bounceIn">
                 <h1 className="text-2xl font-bold text-gray-700 my-4">Register</h1>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
