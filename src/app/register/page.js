@@ -16,6 +16,7 @@ export default function RegisterPage() {
     const [inviteCode, setInviteCode] = useState('');
     const [error, setError] = useState('');
     const [buttonText, setButtonText] = useState('Generate');
+    const [buttonDisabled, setButtonDisabled] = useState(false);
 
     const generatePassword = () => {
         const length = 12;
@@ -45,7 +46,11 @@ export default function RegisterPage() {
 
         // change button text and revert after 3 seconds
         setButtonText('Saved to Clipboard');
-        setTimeout(() => setButtonText('Generate'), 3000);
+        setButtonDisabled(true);
+        setTimeout(() => {
+            setButtonText('Generate');
+            setButtonDisabled(false);
+        }, 1500);
     }
 
     const handleRegister = async () => {
@@ -135,8 +140,9 @@ export default function RegisterPage() {
                         {/* Generate Password Button */}
                         <button
                             type="button"
-                            className="mt-1 w-full p-2 border rounded-md transition-colors duration-200 hover:bg-gray-200 hover:border-gray-300"
+                            className={`mt-1 w-full p-2 border rounded-md transition-colors duration-200 hover:bg-gray-200 hover:border-gray-300 ${buttonDisabled ? 'bg-gray-300 cursor-not-allowed' : ''}`}
                             onClick={() => generatePassword()}
+                            disabled={buttonDisabled}
                         >
                             {buttonText}
                         </button>
