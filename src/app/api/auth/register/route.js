@@ -47,7 +47,12 @@ export async function POST(req) {
 
         // precise error
         if (!validate(requestBody)) {
-            return NextResponse.json({ error: JSON.stringify(validate.errors) }, { status: 400 });
+
+            // convert validate Error into human readable:
+            const firstHumanError = 
+                validate.errors[0].instancePath + " " + validate.errors[0].message;
+
+            return NextResponse.json({ error: firstHumanError }, { status: 400 });
         }
 
         const { email, password, invite, username, fingerprint } = requestBody;
