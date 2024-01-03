@@ -108,7 +108,7 @@ export default function RegisterPage() {
             }
 
             // save fingerprint
-            setFingerprint(fingerprint);
+            setFingerprint(fingerprint?.fingerprint);
         };
 
         generateFingerprint();
@@ -197,8 +197,9 @@ export default function RegisterPage() {
                 <div className="text-sm text-gray-600">
                     Already have an account? <button type="button" className="text-blue-600 hover:text-blue-700" onClick={() => router.push('/login')}>Login</button>
                 </div>
+                {/* ToDo: Fix ugly toast on long errors*/}
                 {error && (
-                    <div className={`bg-red-600 text-white w-full py-2 px-4 rounded-md mt-3 relative animate__animated ${animationClass} animate__faster flex items-center`}>
+                    <div className={`bg-red-600 text-white w-full p-2 rounded-md mt-3 relative animate__animated ${animationClass} animate__faster flex items-center overflow-y-auto max-h-32 break-words`}>
                         <span className="flex-1">{error}</span>
                         <button
                             onClick={() => {
@@ -214,6 +215,7 @@ export default function RegisterPage() {
                         </button>
                     </div>
                 )}
+
             </div >
         </main >
     )

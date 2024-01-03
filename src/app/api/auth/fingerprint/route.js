@@ -28,8 +28,6 @@ function validateHeaders(headers) {
         'accept-language': headers.get('accept-language')
     }
 
-    console.log(headersObject)
-
     const valid = validate(headersObject);
     if (!valid) {
         throw new Error('Invalid Request.');

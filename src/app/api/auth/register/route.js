@@ -53,7 +53,7 @@ export async function POST(req) {
                 validate.errors[0].instancePath + " " + validate.errors[0].message;
 
             return NextResponse.json({ error: firstHumanError }, { status: 400 });
-        }
+        }F
 
         const { email, password, invite, username, fingerprint } = requestBody;
 

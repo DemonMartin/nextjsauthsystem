@@ -96,17 +96,18 @@ export default function LoginPage() {
                     Don&apos;t have an account? <button type="button" className="text-blue-600 hover:text-blue-700" onClick={() => router.push('/register')}>Register</button>
                 </div>
 
+                {/* ToDo: Fix ugly toast on long errors*/}
                 {error && (
-                    <div className={`bg-red-600 text-white text-sm w-full py-2 px-4 rounded-md mt-3 relative animate__animated ${animationClass} animate__faster flex items-center`}>
+                    <div className={`bg-red-600 text-white w-full p-2 rounded-md mt-3 relative animate__animated ${animationClass} animate__faster flex items-center overflow-y-auto max-h-32 break-words`}>
                         <span className="flex-1">{error}</span>
-                        <button 
+                        <button
                             onClick={() => {
                                 setAnimationClass('animate__fadeOut');
                                 setTimeout(() => {
                                     setError('');
                                     setAnimationClass('animate__fadeIn');
                                 }, 400);
-                            }} 
+                            }}
                             className="ml-2 p-2 transition-colors duration-200 hover:bg-red-700 rounded-md"
                         >
                             <IoCloseSharp className="h-5 w-5" />
