@@ -15,15 +15,37 @@ export default function RegisterPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [inviteCode, setInviteCode] = useState('');
     const [error, setError] = useState('');
+    const [buttonText, setButtonText] = useState('Generate');
 
     const generatePassword = () => {
-        const randomPassword = Math.random().toString(36).slice(-8);
-        document.getElementById('password').value = randomPassword;
-        setPassword(randomPassword);
+        const length = 12;
+        const charSets = [
+            "abcdefghijklmnopqrstuvwxyz",
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+            "0123456789",
+            "!#$%&_+=-"
+        ];
+
+        const getRandomChar = (set) => set[Math.floor(Math.random() * set.length)];
+
+        let password = charSets.map(getRandomChar).join('');
+        while (password.length < length) {
+            password += getRandomChar(charSets[Math.floor(Math.random() * charSets.length)]);
+        }
+
+        // Shuffle password to ensure randomness
+        password = password.split('').sort(() => 0.5 - Math.random()).join('');
+
+        document.getElementById('password').value = password;
+        setPassword(password);
         setShowPassword(true);
 
         // save to clipboard
-        navigator.clipboard.writeText(randomPassword);
+        navigator.clipboard.writeText(password);
+
+        // change button text and revert after 3 seconds
+        setButtonText('Saved to Clipboard');
+        setTimeout(() => setButtonText('Generate'), 3000);
     }
 
     const handleRegister = async () => {
@@ -116,7 +138,7 @@ export default function RegisterPage() {
                             className="mt-1 w-full p-2 border rounded-md transition-colors duration-200 hover:bg-gray-200 hover:border-gray-300"
                             onClick={() => generatePassword()}
                         >
-                            Generate
+                            {buttonText}
                         </button>
                     </div>
                     <div>
