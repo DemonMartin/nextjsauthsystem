@@ -33,7 +33,8 @@ export async function POST(req) {
                 },
                 password: {
                     type: "string",
-                    minLength: 8
+                    minLength: 8,
+                    maxLength: 128
                 }
             },
             required: ["username", "password"]

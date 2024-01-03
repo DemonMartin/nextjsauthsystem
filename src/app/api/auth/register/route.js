@@ -25,7 +25,8 @@ export async function POST(req) {
                 email: { type: "string", format: "email" },
                 password: {
                     type: "string",
-                    minLength: 8
+                    minLength: 8,
+                    maxLength: 128
                 },
                 invite: { type: "string" },
                 username: {

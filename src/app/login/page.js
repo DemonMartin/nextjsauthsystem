@@ -58,6 +58,8 @@ export default function LoginPage() {
                             placeholder="Enter your username"
                             className="mt-1 w-full p-2 border rounded-md"
                             id="username"
+                            minLength={4}
+                            maxLength={32}
                             required
                         />
                     </div>
@@ -73,6 +75,8 @@ export default function LoginPage() {
                                 className="mt-1 w-full p-2 border rounded-md"
                                 autoComplete="new-password"
                                 id="password"
+                                minLength={8}
+                                maxLength={128}
                                 required
                             />
                             <button

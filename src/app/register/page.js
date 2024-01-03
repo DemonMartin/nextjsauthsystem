@@ -9,6 +9,7 @@ import {
 
 import { IoCloseSharp } from "react-icons/io5";
 import ClipLoader from "react-spinners/ClipLoader";
+import PasswordStrenghBar from '@/components/PasswordStrenghBar';
 
 export default function RegisterPage() {
     const router = useRouter();
@@ -49,7 +50,7 @@ export default function RegisterPage() {
         // save to clipboard
         navigator.clipboard.writeText(password);
 
-        // change button text and revert after 3 seconds
+        // change button text and revert after 1.5 seconds
         setButtonText('Saved to Clipboard');
         setButtonDisabled(true);
         setTimeout(() => {
@@ -119,6 +120,8 @@ export default function RegisterPage() {
                             placeholder="Enter your username"
                             className="mt-1 w-full p-2 border rounded-md"
                             id="username"
+                            minLength={4}
+                            maxLength={32}
                             required
                         />
                     </div>
@@ -134,6 +137,8 @@ export default function RegisterPage() {
                                 className="mt-1 w-full p-2 border rounded-md"
                                 autoComplete="new-password"
                                 id="password"
+                                minLength={8}
+                                maxLength={128}
                                 required
                             />
                             {/* Show/Hide Password Button */}
@@ -154,6 +159,7 @@ export default function RegisterPage() {
                         >
                             {buttonText}
                         </button>
+                        <PasswordStrenghBar pw={password}/>
                     </div>
                     <div>
                         <label htmlFor="inviteCode" className="text-gray-600 font-semibold">Invite Code</label>
