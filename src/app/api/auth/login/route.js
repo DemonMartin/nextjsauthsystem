@@ -19,7 +19,10 @@ async function hasUser(obj) {
 
 export async function POST(req) {
     try {
-        const { username, password } = await req.json();
+        let { username, password } = await req.json();
+
+        // convert username to lowercase
+        username = username.toLowerCase();
 
         // Validate username and password
         const schema = {
