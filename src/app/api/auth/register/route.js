@@ -6,6 +6,7 @@ import Ajv from "ajv";
 import addFormats from "ajv-formats"
 import validator from "validator";
 import validateFingerprint from "@/libs/validateFingerprint";
+import { verifyEmail } from '@devmehq/email-validator-js';
 
 const ajv = new Ajv();
 addFormats(ajv);
@@ -45,11 +46,9 @@ export async function POST(req) {
 
         const validate = ajv.compile(schema);
 
-        // precise error
         if (!validate(requestBody)) {
-
             // convert validate Error into human readable:
-            const firstHumanError = 
+            const firstHumanError =
                 validate.errors[0].instancePath + " " + validate.errors[0].message;
 
             return NextResponse.json({ error: firstHumanError }, { status: 400 });
@@ -82,6 +81,21 @@ export async function POST(req) {
         // check if password is strong enough
         if (!validator.isStrongPassword(password)) {
             return NextResponse.json({ error: "Password is not strong enough, ensure it has LowerCase, UpperCase, Numbers and Symbols in it" }, { status: 400 });
+        }
+
+        if (process.env.EMAIL_VERIFY_PRECHECK) {
+            const { validFormat, validSmtp, validMx } = await verifyEmail({ emailAddress: email, verifyMx: true, verifySmtp: true, timeout: 5000 });
+            if (!validFormat) {
+                return NextResponse.json({ error: "Invalid email format" }, { status: 400 });
+            }
+
+            if (!validSmtp) {
+                return NextResponse.json({ error: "Invalid email smtp" }, { status: 400 });
+            }
+
+            if (!validMx) {
+                return NextResponse.json({ error: "Invalid email mx" }, { status: 400 });
+            }
         }
 
         // hash password

@@ -62,6 +62,12 @@ export async function POST(req) {
             return NextResponse.json({ error: "Invalid password" }, { status: 401 });
         }
 
+        if (process.env.EMAIL_VERIFY_REQUIRED === "true") {
+            if (user.role === "unverified") {
+                return NextResponse.json({ error: "Email not verified" }, { status: 401 });
+            }
+        }
+
         // Generate JWT
         const jwtToken = jwt.sign({ id: user._id, password: user.password }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES });
 
