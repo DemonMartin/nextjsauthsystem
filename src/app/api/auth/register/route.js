@@ -8,7 +8,7 @@ import validator from "validator";
 import validateFingerprint from "@/libs/validateFingerprint";
 import { verifyEmail } from '@devmehq/email-validator-js';
 import jwt from "jsonwebtoken";
-
+import nodemailer from "nodemailer"
 
 const ajv = new Ajv();
 addFormats(ajv);
@@ -23,15 +23,38 @@ function NextError(error) {
 }
 
 async function sendVerificationEmail(email) {
-    const token = jwt.sign({ email }, process.env.EMAIL_JWT_SECRET, {
-        expiresIn: process.env.EMAIL_JWT_EXPIRES
-    });
-    let msg = `
-    <h1>Verify your email</h1>
-    <p>Click the link below to verify your email address.</p>
-    <a href="${process.env.SITE_URL}/verify/${token}">Verify Email</a>
-    `;
+    try {
+        const token = jwt.sign({ email }, process.env.EMAIL_JWT_SECRET, {
+            expiresIn: process.env.EMAIL_JWT_EXPIRES
+        });
+        let msg = `
+        <h1>Verify your email</h1>
+        <p>Click the link below to verify your email address.</p>
+        <a href="${process.env.SITE_URL}/verify/${token}">Verify Email</a>
+        `;
 
+        const transporter = nodemailer.createTransport({
+            host: process.env.SMTP_SERVER,
+            port: +process.env.SMTP_PORT,
+            secure: process.env.SMPT_SECURE === "true",
+            auth: {
+                user: process.env.SMTP_USERNAME,
+                pass: process.env.SMTP_PASSWORD
+            }
+        });
+
+        await transporter.sendMail({
+            from: process.env.SMTP_FROM,
+            to: email,
+            subject: "Verify your email",
+            html: msg
+        });
+
+        return { success: true }
+    } catch (error) {
+        console.log(error);
+        return { success: false }
+    }
 }
 
 export async function POST(req) {
@@ -120,6 +143,15 @@ export async function POST(req) {
             }
         }
 
+        // send verification email
+        if (process.env.EMAIL_VERIFY_SENDING === "true") {
+            const EmailRequest = await sendVerificationEmail(email);
+
+            if (!EmailRequest.success) {
+                return NextError("Error sending verification email")
+            }
+        }
+
         // hash password
         const hashedPassword = await argon2.hash(password, {
             type: argon2.argon2id
@@ -130,11 +162,6 @@ export async function POST(req) {
             password: hashedPassword,
             username
         });
-
-        // send verification email
-        if (process.env.EMAIL_VERIFY_REQUIRED === "true") {
-            await sendVerificationEmail(email);
-        }
 
         // return success
         return NextResponse.json({ success: true }, { status: 200 });
