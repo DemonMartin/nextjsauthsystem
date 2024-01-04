@@ -7,6 +7,8 @@ import addFormats from "ajv-formats"
 import validator from "validator";
 import validateFingerprint from "@/libs/validateFingerprint";
 import { verifyEmail } from '@devmehq/email-validator-js';
+import jwt from "jsonwebtoken";
+
 
 const ajv = new Ajv();
 addFormats(ajv);
@@ -14,6 +16,22 @@ addFormats(ajv);
 async function hasUser(obj) {
     const user = await User.findOne({ ...obj }).exec();
     return user;
+}
+
+function NextError(error) {
+    return NextResponse.json({ error }, { status: 400 });
+}
+
+async function sendVerificationEmail(email) {
+    const token = jwt.sign({ email }, process.env.EMAIL_JWT_SECRET, {
+        expiresIn: process.env.EMAIL_JWT_EXPIRES
+    });
+    let msg = `
+    <h1>Verify your email</h1>
+    <p>Click the link below to verify your email address.</p>
+    <a href="${process.env.SITE_URL}/verify/${token}">Verify Email</a>
+    `;
+
 }
 
 export async function POST(req) {
@@ -51,50 +69,54 @@ export async function POST(req) {
             const firstHumanError =
                 validate.errors[0].instancePath + " " + validate.errors[0].message;
 
-            return NextResponse.json({ error: firstHumanError }, { status: 400 });
+            return NextError(firstHumanError)
         }
 
         const { email, password, invite, username, fingerprint } = requestBody;
 
         // check if fingerprint is valid
         if (!(await validateFingerprint(req.headers, fingerprint))) {
-            return NextResponse.json({ error: "Invalid fingerprint" }, { status: 400 });
+            return NextError("Invalid fingerprint")
         }
 
         // check if invite is valid
         if (invite !== process.env.INVITE_CODE) {
-            return NextResponse.json({ error: "Invalid invite code" }, { status: 400 });
+            return NextError("Invalid invite code")
+        }
+
+        if (username === password) {
+            return NextError("Username and password cannot be the same")
         }
 
         await dbConnect();
 
         // check if email is already in use
         if (await hasUser({ email })) {
-            return NextResponse.json({ error: "Email is already in use" }, { status: 400 });
+            return NextError("Email is already in use")
         }
 
         // check if username is already in use
         if (await hasUser({ username })) {
-            return NextResponse.json({ error: "Username is already taken" }, { status: 400 });
+            return NextError("Username is already taken")
         }
 
         // check if password is strong enough
         if (!validator.isStrongPassword(password)) {
-            return NextResponse.json({ error: "Password is not strong enough, ensure it has LowerCase, UpperCase, Numbers and Symbols in it" }, { status: 400 });
+            return NextError("Password needs lower and uppercase letters, numbers, and symbols")
         }
 
         if (process.env.EMAIL_VERIFY_PRECHECK) {
             const { validFormat, validSmtp, validMx } = await verifyEmail({ emailAddress: email, verifyMx: true, verifySmtp: true, timeout: 5000 });
             if (!validFormat) {
-                return NextResponse.json({ error: "Invalid email format" }, { status: 400 });
+                return NextError("Invalid email format (please report issues)")
             }
 
             if (!validSmtp) {
-                return NextResponse.json({ error: "Invalid email smtp" }, { status: 400 });
+                return NextError("Invalid email smtp (please report issues)")
             }
 
             if (!validMx) {
-                return NextResponse.json({ error: "Invalid email mx" }, { status: 400 });
+                return NextError("Invalid email mx (please report issues)")
             }
         }
 
@@ -108,6 +130,11 @@ export async function POST(req) {
             password: hashedPassword,
             username
         });
+
+        // send verification email
+        if (process.env.EMAIL_VERIFY_REQUIRED === "true") {
+            await sendVerificationEmail(email);
+        }
 
         // return success
         return NextResponse.json({ success: true }, { status: 200 });

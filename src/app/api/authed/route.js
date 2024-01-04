@@ -34,7 +34,7 @@ export async function GET() {
             return unauthenticatedResponse();
         }
 
-        return NextResponse.json({ authed: true });
+        return NextResponse.json({ authed: true, ...(process.env.EMAIL_VERIFY_REQUIRED ? { verified: dbUser.role != "unverified" } : {}) });
     } catch (error) {
         return unauthenticatedResponse();
     }
