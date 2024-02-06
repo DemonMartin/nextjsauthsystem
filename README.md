@@ -7,6 +7,7 @@ This project is a simple, yet robust, authentication system built with [Next.js]
 - Bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app), a zero-config single-command tool for creating new Next.js applications.
 - Utilizes JSON Web Tokens (JWT) for secure transmission of information between parties.
 - Employs Argon2, a powerful password hashing algorithm, for secure password storage.
+- Implements a custom fingerprint solution to deter individuals from spamming the registration API with basic requests.
 
 ## Getting Started
 
