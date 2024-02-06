@@ -40,15 +40,20 @@ async function sendVerificationEmail(email) {
             auth: {
                 user: process.env.SMTP_USERNAME,
                 pass: process.env.SMTP_PASSWORD
+            },
+            tls: {
+                rejectUnauthorized: false
             }
         });
 
-        await transporter.sendMail({
+        const info = await transporter.sendMail({
             from: process.env.SMTP_FROM,
             to: email,
             subject: "Verify your email",
             html: msg
         });
+
+        console.log("Message sent: %s", info);
 
         return { success: true }
     } catch (error) {
